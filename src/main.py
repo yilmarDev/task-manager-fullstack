@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(title="Task Manager API")
@@ -22,6 +22,11 @@ app.add_middleware(
 # - Health check endpoint
 
 
-@app.get("/")
+@app.get("/", status_code=status.HTTP_200_OK)
 async def root():
-    return {"message": "Task Manager API"}
+    # error = True
+    # if error:
+    #     raise HTTPException(
+    #         status_code=status.HTTP_400_BAD_REQUEST, detail="Fail Getting data"
+    #     )
+    return {"message": "Task Manager API is working right now"}
