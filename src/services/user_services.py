@@ -27,6 +27,7 @@ class UserService:
 
     async def register_user(self, user_data: UserCreate) -> UserResponse:
         """Register a new user"""
+
         existing_user = await self.repo.get_user_by_email(user_data.email)
         if existing_user:
             raise ValueError("Email already registered")
@@ -57,6 +58,10 @@ class UserService:
             existing = await self.repo.get_user_by_email(user_data["email"])
             if existing:
                 raise ValueError("Email already registered")
+
+        # Convert "password" to "password_hash" if provided
+        if "password" in user_data and user_data["password"] is not None:
+            user_data["password_hash"] = self.hash_password(user_data.pop("password"))
 
         updated_user = await self.repo.update_user(user_id, user_data)
         return UserResponse.model_validate(updated_user)
