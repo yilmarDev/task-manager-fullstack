@@ -1,6 +1,6 @@
+from uuid import UUID
+
 from passlib.context import CryptContext
-from pydantic import EmailStr
-from sqlmodel import UUID
 from src.models import UserCreate, UserResponse, User
 
 

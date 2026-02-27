@@ -1,6 +1,7 @@
 from pydantic import EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlmodel import UUID, select
+from uuid import UUID
+from sqlmodel import select
 
 from src.models import User
 

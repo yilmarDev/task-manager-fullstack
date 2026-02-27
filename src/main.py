@@ -1,8 +1,10 @@
 from fastapi import FastAPI, HTTPException, status, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.ext.asyncio import AsyncSession
+
 from src.config import settings
 from src.db import get_db
+from src.routers.user import router as users_router
 
 app = FastAPI(title="Task Manager API")
 
@@ -15,6 +17,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(users_router)
 
 # TODO: Implement your API
 # Consider:

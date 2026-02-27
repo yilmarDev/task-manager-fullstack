@@ -2,11 +2,14 @@ from datetime import datetime, timezone
 from typing import Optional
 from uuid import uuid4, UUID
 
+from pydantic import ConfigDict
 from sqlmodel import Field, SQLModel
 
 
 class User(SQLModel, table=True):
     """Database model for User"""
+
+    __table_args__ = {"extend_existing": True}
 
     id: Optional[UUID] = Field(default_factory=uuid4, primary_key=True)
     name: str = Field(index=True)
@@ -23,6 +26,14 @@ class UserCreate(SQLModel):
     name: str
     email: str
     password: str
+
+
+class UserUpdate(SQLModel):
+    """Schema for updating a user (request)"""
+
+    name: Optional[str] = None
+    email: Optional[str] = None
+    password: Optional[str] = None
 
 
 class UserResponse(SQLModel):
