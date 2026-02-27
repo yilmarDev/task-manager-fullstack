@@ -1,12 +1,24 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException, status, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.config import settings
-from src.db import get_db
+from src.db import get_db, create_db_and_tables
 from src.routers.user import router as users_router
 
-app = FastAPI(title="Task Manager API")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Manage application lifespan - create tables on startup"""
+    # Startup
+    await create_db_and_tables()
+    yield
+    # Shutdown
+    pass
+
+
+app = FastAPI(title="Task Manager API", lifespan=lifespan)
 
 # Configure CORS from environment
 app.add_middleware(

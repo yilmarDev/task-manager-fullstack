@@ -1,9 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
-from sqlalchemy.orm import declarative_base
+from sqlmodel import SQLModel
 from src.config import settings
-
-# Base class for all SQLAlchemy models
-Base = declarative_base()
 
 # Create async engine
 engine = create_async_engine(
@@ -18,6 +15,20 @@ AsyncSessionLocal = async_sessionmaker(
     class_=AsyncSession,
     expire_on_commit=False,
 )
+
+
+async def create_db_and_tables():
+    """Create all database tables using SQLModel metadata"""
+    # Import models here to register them with SQLModel
+    from src.models import User  # noqa: F401
+
+    try:
+        async with engine.begin() as conn:
+            await conn.run_sync(SQLModel.metadata.create_all)
+        print("✅ Database tables created successfully!")
+    except Exception as e:
+        print(f"⚠️  Warning: Could not create database tables: {e}")
+        print("Make sure PostgreSQL is running and accessible.")
 
 
 async def get_db():
