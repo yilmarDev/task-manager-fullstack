@@ -3,20 +3,19 @@ import './App.css';
 
 function App() {
   const [message, setMessage] = useState('');
+  const [health, setHealth] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
     // Consume the root endpoint from the backend
-    fetch('http://localhost:8000/')
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then((data) => {
-        setMessage(data.message);
+    Promise.all([
+      fetch('http://localhost:8000/').then((r) => r.json()),
+      fetch('http://localhost:8000/health').then((r) => r.json()),
+    ])
+      .then(([rootData, healthData]) => {
+        setMessage(rootData.message);
+        setHealth(healthData);
         setLoading(false);
       })
       .catch((err) => {
@@ -36,6 +35,11 @@ function App() {
         {message && (
           <p>
             <strong>Backend says:</strong> {message}
+          </p>
+        )}
+        {health && (
+          <p>
+            <strong>Health Status:</strong> {health.status} - {health.service}
           </p>
         )}
       </main>
