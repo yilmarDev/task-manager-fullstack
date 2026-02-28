@@ -3,9 +3,8 @@ from uuid import UUID
 
 from src.models import UserCreate, UserResponse, UserUpdate
 from src.services.user_services import UserService
-from src.dependencies import get_user_service
+from src.dependencies import get_user_service, get_current_user
 
-# Los objetos se llaman "routers"
 router = APIRouter(prefix="/api/users", tags=["Users"])
 
 
@@ -14,7 +13,7 @@ async def register_user(
     user_data: UserCreate,
     service: UserService = Depends(get_user_service),
 ):
-    """Register a new user"""
+    """Register a new user (Public endpoint)"""
     try:
         return await service.register_user(user_data)
     except ValueError as e:
@@ -27,9 +26,16 @@ async def register_user(
 @router.get("/{user_id}", response_model=UserResponse)
 async def get_user(
     user_id: UUID,
+    current_user: UserResponse = Depends(get_current_user),
     service: UserService = Depends(get_user_service),
 ):
     """Get user by ID"""
+    if current_user.id != user_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You don't have permission to access this profile",
+        )
+
     try:
         return await service.get_user(user_id)
     except ValueError as e:
@@ -43,9 +49,16 @@ async def get_user(
 async def update_user(
     user_id: UUID,
     user_data: UserUpdate,
+    current_user: UserResponse = Depends(get_current_user),
     service: UserService = Depends(get_user_service),
 ):
     """Update user information"""
+    if current_user.id != user_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You don't have permission to modify this profile",
+        )
+
     try:
         return await service.update_user(
             user_id, user_data.model_dump(exclude_unset=True)
