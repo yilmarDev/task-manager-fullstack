@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.config import settings
 from src.db import get_db, create_db_and_tables
 from src.routers.user import router as users_router
+from src.routers.task import router as tasks_router
 
 
 @asynccontextmanager
@@ -30,6 +31,7 @@ app.add_middleware(
 )
 
 app.include_router(users_router)
+app.include_router(tasks_router)
 
 # TODO: Implement your API
 # Consider:

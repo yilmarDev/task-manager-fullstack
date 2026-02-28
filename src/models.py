@@ -73,7 +73,9 @@ class Task(SQLModel, table=True):
     status: TaskStatus = Field(default=TaskStatus.PENDING, index=True)
     owner_id: UUID = Field(foreign_key="user.id", index=True)
     assigned_to_id: Optional[UUID] = Field(default=None, foreign_key="user.id")
-    due_date: Optional[datetime] = None
+    due_date: Optional[datetime] = Field(
+        default=None, sa_column=Column(DateTime(timezone=True), nullable=True)
+    )
     created_at: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc),
         sa_column=Column(DateTime(timezone=True)),
