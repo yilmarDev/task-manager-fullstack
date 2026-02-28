@@ -1,9 +1,15 @@
 import { useState, useEffect } from 'react';
 import './App.css';
 
+export interface APIHealthStatus {
+  status: string;
+  service: string;
+  database: string;
+}
+
 function App() {
   const [message, setMessage] = useState('');
-  const [health, setHealth] = useState(null);
+  const [health, setHealth] = useState<APIHealthStatus>();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
