@@ -10,7 +10,7 @@ class TestUserRegistration:
     async def test_register_user_success(self, client: AsyncClient):
         """Test successful user registration"""
         response = await client.post(
-            "/api/users/register",
+            "/api/users",
             json={
                 "name": "John Doe",
                 "email": "john@example.com",
@@ -30,7 +30,7 @@ class TestUserRegistration:
     async def test_register_user_duplicate_email(self, client: AsyncClient, test_user):
         """Test registration fails with duplicate email"""
         response = await client.post(
-            "/api/users/register",
+            "/api/users",
             json={
                 "name": "Another User",
                 "email": "test@example.com",  # Same as test_user
@@ -45,7 +45,7 @@ class TestUserRegistration:
     async def test_register_user_invalid_email(self, client: AsyncClient):
         """Test registration - invalid email accepted without validation"""
         response = await client.post(
-            "/api/users/register",
+            "/api/users",
             json={
                 "name": "Invalid Email",
                 "email": "not-an-email",
@@ -59,7 +59,7 @@ class TestUserRegistration:
     async def test_register_user_missing_fields(self, client: AsyncClient):
         """Test registration fails with missing required fields"""
         response = await client.post(
-            "/api/users/register",
+            "/api/users",
             json={
                 "name": "Incomplete",
                 # Missing email and password
@@ -160,7 +160,7 @@ class TestUpdateUser:
         """Test updating user email to an existing email fails"""
         # Create a second user
         user2_response = await client.post(
-            "/api/users/register",
+            "/api/users",
             json={
                 "name": "User Two",
                 "email": "user2@example.com",
