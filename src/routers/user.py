@@ -53,7 +53,13 @@ async def update_user(
             user_id, user_data.model_dump(exclude_unset=True)
         )
     except ValueError as e:
+        error_msg = str(e)
+        if "user not found" in error_msg.lower():
+            status_code = status.HTTP_404_NOT_FOUND
+        else:
+            status_code = status.HTTP_400_BAD_REQUEST
+
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e),
+            status_code=status_code,
+            detail=error_msg,
         )

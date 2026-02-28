@@ -59,7 +59,6 @@ class UserService:
             if existing:
                 raise ValueError("Email already registered")
 
-        # Convert "password" to "password_hash" if provided
         if "password" in user_data and user_data["password"] is not None:
             user_data["password_hash"] = self.hash_password(user_data.pop("password"))
 

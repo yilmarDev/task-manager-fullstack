@@ -136,6 +136,9 @@ docker compose up -d db
 # Run the API (after you implement it)
 # uvicorn src.main:app --reload
 uv run uvicorn src.main:app --reload
+
+# Run tests
+uv run pytest tests/ -v
 ```
 
 ### Frontend Setup
