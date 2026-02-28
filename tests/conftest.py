@@ -83,3 +83,23 @@ async def test_user(test_db_session):
 
     created_user = await repo.create_user(user)
     return created_user
+
+
+@pytest.fixture
+async def test_task(test_db_session, test_user):
+    """Create a test task in the database"""
+    from src.models import Task, TaskStatus
+
+    task = Task(
+        id=uuid4(),
+        title="Test Task",
+        description="This is a test task",
+        status=TaskStatus.PENDING,
+        owner_id=test_user.id,
+        assigned_to_id=None,
+    )
+
+    test_db_session.add(task)
+    await test_db_session.commit()
+    await test_db_session.refresh(task)
+    return task

@@ -1,7 +1,7 @@
 from uuid import UUID
 from datetime import datetime, timezone
 
-from src.models import Task, TaskCreate, TaskUpdate, TaskResponse, TaskStatus
+from src.models import Task, TaskCreate, TaskUpdate, TaskResponse, TaskStatus, User
 from src.repositories.task_repository import TaskRepository
 
 
@@ -13,6 +13,13 @@ class TaskService:
 
     async def create_task(self, owner_id: UUID, task_data: TaskCreate) -> TaskResponse:
         """Create a new task"""
+        if task_data.assigned_to_id:
+            assigned_user = await self.repo.db.get(User, task_data.assigned_to_id)
+            if not assigned_user:
+                raise ValueError(
+                    f"Assigned user not found"
+                )
+
         task = Task(
             title=task_data.title,
             description=task_data.description,
