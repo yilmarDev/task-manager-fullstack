@@ -13,11 +13,11 @@ async def login(
     form_data: OAuth2PasswordRequestForm = Depends(),
     user_service: UserService = Depends(get_user_service),
 ):
-    user = await user_service.authenticate_user(
-        email=form_data.username, password=form_data.password
-    )
-
-    if not user:
+    try:
+        user = await user_service.authenticate_user(
+            email=form_data.username, password=form_data.password
+        )
+    except ValueError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",

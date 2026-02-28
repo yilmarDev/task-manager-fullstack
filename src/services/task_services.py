@@ -16,9 +16,7 @@ class TaskService:
         if task_data.assigned_to_id:
             assigned_user = await self.repo.db.get(User, task_data.assigned_to_id)
             if not assigned_user:
-                raise ValueError(
-                    f"Assigned user not found"
-                )
+                raise ValueError(f"Assigned user not found")
 
         task = Task(
             title=task_data.title,
@@ -70,7 +68,9 @@ class TaskService:
             raise ValueError(f"Task not found")
 
         if task.owner_id != user_id:
-            raise PermissionError("Only the task owner can update this task")
+            raise PermissionError(
+                "Permission denied: only the task owner can update this task"
+            )
 
         # # Build update dict excluding None values
         # update_dict = {
@@ -87,6 +87,8 @@ class TaskService:
             raise ValueError(f"Task with id {task_id} not found")
 
         if task.owner_id != user_id:
-            raise PermissionError("Only the task owner can delete this task")
+            raise PermissionError(
+                "Permission denied: only the task owner can delete this task"
+            )
 
         return await self.repo.delete_task(task_id)

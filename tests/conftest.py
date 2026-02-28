@@ -6,6 +6,7 @@ from uuid import uuid4
 from src.main import app
 from src.db import get_db
 from src.models import SQLModel, User
+from src.dependencies import get_current_user
 
 
 # Test database URL - use SQLite in-memory for fast tests
@@ -103,3 +104,11 @@ async def test_task(test_db_session, test_user):
     await test_db_session.commit()
     await test_db_session.refresh(task)
     return task
+
+
+@pytest.fixture
+def auth_client(client: AsyncClient, test_user):
+    """Client who simulate be logged"""
+    app.dependency_overrides[get_current_user] = lambda: test_user
+    yield client
+    app.dependency_overrides.clear()
