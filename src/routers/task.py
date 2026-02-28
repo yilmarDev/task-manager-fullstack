@@ -8,9 +8,7 @@ from src.dependencies import get_task_service
 router = APIRouter(prefix="/api/tasks", tags=["Tasks"])
 
 
-@router.post(
-    "/register", response_model=TaskResponse, status_code=status.HTTP_201_CREATED
-)
+@router.post("", response_model=TaskResponse, status_code=status.HTTP_201_CREATED)
 async def create_task(
     task_data: TaskCreate,
     owner_id: UUID,
@@ -24,6 +22,25 @@ async def create_task(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e),
         )
+
+
+@router.get("/assigned", response_model=list[TaskResponse])
+async def list_assigned_tasks(
+    user_id: UUID,
+    service: TaskService = Depends(get_task_service),
+):
+    """List tasks assigned to user"""
+    return await service.list_assigned_tasks(user_id)
+
+
+@router.get("", response_model=list[TaskResponse])
+async def list_tasks(
+    user_id: UUID,
+    status: TaskStatus | None = None,
+    service: TaskService = Depends(get_task_service),
+):
+    """List user's tasks with optional status filter"""
+    return await service.list_user_tasks(user_id, status)
 
 
 @router.get("/{task_id}", response_model=TaskResponse)
@@ -45,25 +62,6 @@ async def get_task(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=str(e),
         )
-
-
-@router.get("", response_model=list[TaskResponse])
-async def list_tasks(
-    user_id: UUID,
-    status: TaskStatus | None = None,
-    service: TaskService = Depends(get_task_service),
-):
-    """List user's tasks with optional status filter"""
-    return await service.list_user_tasks(user_id, status)
-
-
-@router.get("/assigned", response_model=list[TaskResponse])
-async def list_assigned_tasks(
-    user_id: UUID,
-    service: TaskService = Depends(get_task_service),
-):
-    """List tasks assigned to user"""
-    return await service.list_assigned_tasks(user_id)
 
 
 @router.put("/{task_id}", response_model=TaskResponse)

@@ -9,9 +9,7 @@ from src.dependencies import get_user_service
 router = APIRouter(prefix="/api/users", tags=["Users"])
 
 
-@router.post(
-    "/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED
-)
+@router.post("", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def register_user(
     user_data: UserCreate,
     service: UserService = Depends(get_user_service),

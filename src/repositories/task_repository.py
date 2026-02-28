@@ -26,8 +26,9 @@ class TaskRepository:
         self, owner_id: UUID, status: TaskStatus
     ) -> list[Task]:
         """Get tasks by owner and status"""
+        status_value = status.value if isinstance(status, TaskStatus) else status
         query = select(Task).where(
-            (Task.owner_id == owner_id) & (Task.status == status)
+            (Task.owner_id == owner_id) & (Task.status == status_value)
         )
         result = await self.db.execute(query)
         return list(result.scalars().all())

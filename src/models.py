@@ -70,7 +70,7 @@ class Task(SQLModel, table=True):
     id: Optional[UUID] = Field(default_factory=uuid4, primary_key=True)
     title: str = Field(index=True)
     description: Optional[str] = None
-    status: TaskStatus = Field(default=TaskStatus.PENDING, index=True)
+    status: str = Field(default=TaskStatus.PENDING.value, index=True)
     owner_id: UUID = Field(foreign_key="user.id", index=True)
     assigned_to_id: Optional[UUID] = Field(default=None, foreign_key="user.id")
     due_date: Optional[datetime] = Field(
