@@ -169,6 +169,35 @@ curl http://localhost:8000/health
 
 ---
 
+## Testing
+
+### Run Tests
+
+```bash
+# Run all tests
+uv run pytest tests/ -v
+
+# Run tests with coverage report (terminal)
+uv run pytest --cov=src
+
+# Run tests with coverage report (HTML - full report)
+uv run pytest --cov=src --cov-report=html
+
+# View HTML coverage report
+# Open htmlcov/index.html in your browser
+```
+
+### Coverage Configuration
+
+Coverage is configured via `.coveragerc` for local development only:
+
+- **Source**: `src/` directory
+- **Excluded**: Tests, pycache, and virtual environments
+- **HTML Report**: Generated in `htmlcov/` folder (interactive, per-file coverage details)
+- **Terminal Report**: Quick summary in console
+
+---
+
 ## Key Files
 
 | File        | Purpose                                       |
