@@ -1,7 +1,8 @@
-from pydantic import EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession
-from uuid import UUID
 from sqlmodel import select
+from datetime import datetime, timezone
+from pydantic import EmailStr
+from uuid import UUID
 
 from src.models import User
 
@@ -39,9 +40,9 @@ class UserRepository:
             if value is not None:
                 setattr(user, key, value)
 
+        user.updated_at = datetime.now(timezone.utc)
+
         self.db.add(user)
         await self.db.commit()
         await self.db.refresh(user)
         return user
-
-

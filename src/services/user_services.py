@@ -1,9 +1,6 @@
 from uuid import UUID
-
 from passlib.context import CryptContext
 from src.models import UserCreate, UserResponse, User
-
-
 from src.repositories.user_repository import UserRepository
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -27,7 +24,6 @@ class UserService:
 
     async def register_user(self, user_data: UserCreate) -> UserResponse:
         """Register a new user"""
-
         existing_user = await self.repo.get_user_by_email(user_data.email)
         if existing_user:
             raise ValueError("Email already registered")
@@ -46,6 +42,7 @@ class UserService:
         user = await self.repo.get_user_by_id(user_id)
         if not user:
             raise ValueError("User not found")
+
         return UserResponse.model_validate(user)
 
     async def update_user(self, user_id: UUID, user_data: dict) -> UserResponse:
@@ -70,4 +67,5 @@ class UserService:
         user = await self.repo.get_user_by_email(email)
         if not user or not self.verify_password(password, user.password_hash):
             raise ValueError("Invalid email or password")
+
         return UserResponse.model_validate(user)
