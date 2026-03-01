@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -7,8 +7,15 @@ import { Separator } from '@/components/ui/separator';
 import { useNavigate } from 'react-router-dom';
 
 import { ArrowRight, CheckSquare, Eye, EyeOff, Lock, Mail } from 'lucide-react';
+import { useGetUserTokenQuery } from '../hooks/useGetUserTokenQuery';
+import type { LoginTokenPayload } from '../interfaces/auth';
 
 type Props = {};
+
+const credentials: LoginTokenPayload = {
+  username: '',
+  password: '',
+};
 
 export const LoginForm = (props: Props) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -18,6 +25,13 @@ export const LoginForm = (props: Props) => {
 
   const navigate = useNavigate();
 
+  const handleTokenResponse = () => {
+    if (loginTokenGetter.data) {
+      console.log('Token info ', loginTokenGetter.data);
+      localStorage.setItem('authToken', loginTokenGetter.data.access_token);
+    }
+  };
+
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setIsLoading(true);
@@ -26,6 +40,13 @@ export const LoginForm = (props: Props) => {
       navigate('/tasks');
     }, 1200);
   }
+
+  const loginTokenGetter = useGetUserTokenQuery(credentials);
+
+  useEffect(() => {
+    if (loginTokenGetter.data) handleTokenResponse();
+    if (loginTokenGetter.error) console.log('Error', loginTokenGetter.error);
+  }, [loginTokenGetter.data, loginTokenGetter.error]);
 
   return (
     <>
