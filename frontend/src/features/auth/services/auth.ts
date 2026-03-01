@@ -1,5 +1,10 @@
 import { apiConn } from '@/shared/api';
-import type { LoginTokenPayload, LoginTokenResponse } from '../interfaces/auth';
+import type {
+  GetUserResponse,
+  LoginTokenPayload,
+  LoginTokenResponse,
+} from '../interfaces/auth';
+import { getUserIdFromToken } from '../utils/token';
 
 export const getUserToken = async (
   credentials: LoginTokenPayload,
@@ -18,5 +23,13 @@ export const getUserToken = async (
     },
   );
 
+  return data;
+};
+
+export const getCurrentUser = async (): Promise<GetUserResponse | null> => {
+  const id = getUserIdFromToken();
+  if (!id) return null;
+
+  const { data } = await apiConn.get<GetUserResponse>(`/users/${id}`);
   return data;
 };
