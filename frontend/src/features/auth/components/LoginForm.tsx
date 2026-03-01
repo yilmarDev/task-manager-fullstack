@@ -1,52 +1,75 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm, Controller } from 'react-hook-form';
+import { z } from 'zod';
 
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
+import { useToast } from '@/components/ui/use-toast';
 import { useNavigate } from 'react-router-dom';
 
 import { ArrowRight, CheckSquare, Eye, EyeOff, Lock, Mail } from 'lucide-react';
 import { useGetUserTokenQuery } from '../hooks/useGetUserTokenQuery';
-import type { LoginTokenPayload } from '../interfaces/auth';
 
 type Props = {};
 
-const credentials: LoginTokenPayload = {
-  username: '',
-  password: '',
-};
+const loginSchema = z.object({
+  email: z.string().email('Please enter a valid email address'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
+  remember: z.boolean().optional(),
+});
+
+type LoginFormValues = z.infer<typeof loginSchema>;
 
 export const LoginForm = (props: Props) => {
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
 
   const navigate = useNavigate();
+  const loginTokenMutation = useGetUserTokenQuery();
+  const { toast } = useToast();
 
-  const handleTokenResponse = () => {
-    if (loginTokenGetter.data) {
-      console.log('Token info ', loginTokenGetter.data);
-      localStorage.setItem('authToken', loginTokenGetter.data.access_token);
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+      remember: false,
+    },
+  });
+
+  const onSubmit = async (values: LoginFormValues) => {
+    try {
+      const data = await loginTokenMutation.mutateAsync({
+        username: values.email,
+        password: values.password,
+      });
+
+      console.log('Token info', data);
+      localStorage.setItem('Authorization', data.access_token);
+
+      toast({
+        title: 'Welcome back! 🎉',
+        description: 'You have logged in successfully.',
+        variant: 'success',
+      });
+
+      navigate('/tasks');
+    } catch (error) {
+      console.error('Login error::::::', error);
+      toast({
+        title: 'Login failed',
+        description: 'Invalid email or password. Please try again.',
+        variant: 'destructive',
+      });
     }
   };
-
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-      navigate('/tasks');
-    }, 1200);
-  }
-
-  const loginTokenGetter = useGetUserTokenQuery(credentials);
-
-  useEffect(() => {
-    if (loginTokenGetter.data) handleTokenResponse();
-    if (loginTokenGetter.error) console.log('Error', loginTokenGetter.error);
-  }, [loginTokenGetter.data, loginTokenGetter.error]);
 
   return (
     <>
@@ -74,7 +97,10 @@ export const LoginForm = (props: Props) => {
 
           {/* Auth card */}
           <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
-            <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+            <form
+              onSubmit={handleSubmit(onSubmit)}
+              className="flex flex-col gap-5"
+            >
               {/* Email */}
               <div className="flex flex-col gap-2">
                 <Label htmlFor="email">Email address</Label>
@@ -83,13 +109,16 @@ export const LoginForm = (props: Props) => {
                   <input
                     id="email"
                     type="email"
-                    required
                     autoComplete="email"
                     placeholder="you@company.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    {...register('email')}
                     className="flex h-10 w-full rounded-lg border border-input bg-transparent pl-10 pr-3 text-sm text-foreground placeholder:text-muted-foreground/60 shadow-xs transition-all outline-none focus:border-ring focus:ring-[3px] focus:ring-ring/50"
                   />
+                  {errors.email && (
+                    <p className="mt-1 text-xs text-red-500">
+                      {errors.email.message}
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -109,13 +138,16 @@ export const LoginForm = (props: Props) => {
                   <input
                     id="password"
                     type={showPassword ? 'text' : 'password'}
-                    required
                     autoComplete="current-password"
                     placeholder="Enter your password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    {...register('password')}
                     className="flex h-10 w-full rounded-lg border border-input bg-transparent pl-10 pr-10 text-sm text-foreground placeholder:text-muted-foreground/60 shadow-xs transition-all outline-none focus:border-ring focus:ring-[3px] focus:ring-ring/50"
                   />
+                  {errors.password && (
+                    <p className="mt-1 text-xs text-red-500">
+                      {errors.password.message}
+                    </p>
+                  )}
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
@@ -134,23 +166,33 @@ export const LoginForm = (props: Props) => {
               </div>
 
               {/* Remember me */}
-              <div className="flex items-center gap-2.5">
-                <Checkbox id="remember" />
+              {/* <div className="flex items-center gap-2.5">
+                <Controller
+                  control={control}
+                  name="remember"
+                  render={({ field }) => (
+                    <Checkbox
+                      id="remember"
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  )}
+                />
                 <Label
                   htmlFor="remember"
                   className="text-sm font-normal text-muted-foreground cursor-pointer"
                 >
                   Remember me for 30 days
                 </Label>
-              </div>
+              </div> */}
 
               {/* Submit */}
               <Button
                 type="submit"
-                disabled={isLoading}
+                disabled={loginTokenMutation.isPending}
                 className="h-10 w-full rounded-lg text-sm font-semibold"
               >
-                {isLoading ? (
+                {loginTokenMutation.isPending ? (
                   <span className="flex items-center gap-2">
                     <span className="size-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
                     Signing in...
