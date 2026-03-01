@@ -31,7 +31,11 @@ import {
 } from '@/components/ui/command';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
-import { teamMembers, type Task, type User } from '@/shared/data';
+import { teamMembers, type Task } from '@/shared/data';
+import { useCreateTaskMutation } from '../hooks/useCreateTaskMutation';
+import type { CreateTaskPayload } from '../interfaces/tasks';
+import { useUsersQuery } from '@/features/users/hooks/useUsersQuery';
+import type { User } from '@/features/users/interfaces/users';
 
 interface CreateTaskModalProps {
   open: boolean;
@@ -53,16 +57,19 @@ export const CreateTaskModal = ({
 
   const isValid = title.trim() && description.trim() && dueDate && assignedUser;
 
+  const usersGetter = useUsersQuery();
+  const taskCreator = useCreateTaskMutation();
+
   function handleSubmit() {
     if (!isValid || !dueDate || !assignedUser) return;
 
-    onCreateTask({
-      title: title.trim(),
-      description: description.trim(),
-      status: 'todo',
-      dueDate: format(dueDate, 'yyyy-MM-dd'),
-      assignedTo: assignedUser,
-    });
+    // onCreateTask({
+    //   title: title.trim(),
+    //   description: description.trim(),
+    //   status: 'todo',
+    //   dueDate: format(dueDate, 'yyyy-MM-dd'),
+    //   assignedTo: assignedUser.id,
+    // });
 
     setTitle('');
     setDescription('');
@@ -70,6 +77,18 @@ export const CreateTaskModal = ({
     setAssignedUser(null);
     onOpenChange(false);
   }
+
+  const handleSubmit1 = async () => {
+    const payload: CreateTaskPayload = {
+      title: 'Task 1002',
+      description:
+        'Review and update all design tokens to ensure consistency across the component library. Document any breaking changes.',
+      due_date: new Date('2026-03-07T19:34:51.145Z'),
+      assigned_to_id: '0ffd0f96-50c3-45d5-8fb8-ac948ea1ac1b',
+    };
+
+    await taskCreator.mutateAsync(payload);
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -174,7 +193,7 @@ export const CreateTaskModal = ({
                     <span className="flex items-center gap-2">
                       <Avatar className="size-5">
                         <AvatarFallback className="bg-primary/10 text-primary text-[8px] font-semibold">
-                          {assignedUser.avatar}
+                          {assignedUser.name.slice(0, 2)}
                         </AvatarFallback>
                       </Avatar>
                       {assignedUser.name}
@@ -194,39 +213,42 @@ export const CreateTaskModal = ({
                   <CommandList>
                     <CommandEmpty>No team member found.</CommandEmpty>
                     <CommandGroup>
-                      {teamMembers.map((user) => (
-                        <CommandItem
-                          key={user.id}
-                          value={user.name}
-                          onSelect={() => {
-                            setAssignedUser(user);
-                            setUserSelectOpen(false);
-                          }}
-                          className="flex items-center gap-2.5 py-2.5"
-                        >
-                          <Avatar className="size-7">
-                            <AvatarFallback className="bg-primary/10 text-primary text-[9px] font-semibold">
-                              {user.avatar}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="flex flex-col">
-                            <span className="text-sm font-medium text-foreground">
-                              {user.name}
-                            </span>
-                            <span className="text-xs text-muted-foreground">
-                              {user.role}
-                            </span>
-                          </div>
-                          <Check
-                            className={cn(
-                              'ml-auto size-4',
-                              assignedUser?.id === user.id
-                                ? 'opacity-100'
-                                : 'opacity-0',
-                            )}
-                          />
-                        </CommandItem>
-                      ))}
+                      {/* {teamMembers.map((user) => ( */}
+                      {usersGetter.isFetching || usersGetter.isPending
+                        ? 'Loading...'
+                        : usersGetter.data?.map((user) => (
+                            <CommandItem
+                              key={user.id}
+                              value={user.name}
+                              onSelect={() => {
+                                setAssignedUser(user);
+                                setUserSelectOpen(false);
+                              }}
+                              className="flex items-center gap-2.5 py-2.5"
+                            >
+                              <Avatar className="size-7">
+                                <AvatarFallback className="bg-primary/10 text-primary text-[9px] font-semibold">
+                                  {user.name.slice(0, 2)}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className="flex flex-col">
+                                <span className="text-sm font-medium text-foreground">
+                                  {user.name}
+                                </span>
+                                <span className="text-xs text-muted-foreground">
+                                  {user.role}
+                                </span>
+                              </div>
+                              <Check
+                                className={cn(
+                                  'ml-auto size-4',
+                                  assignedUser?.id === user.id
+                                    ? 'opacity-100'
+                                    : 'opacity-0',
+                                )}
+                              />
+                            </CommandItem>
+                          ))}
                     </CommandGroup>
                   </CommandList>
                 </Command>
@@ -238,7 +260,7 @@ export const CreateTaskModal = ({
         <DialogFooter className="px-6 py-4 border-t border-border bg-muted/30">
           <Button
             variant="outline"
-            onClick={() => onOpenChange(false)}
+            onClick={() => handleSubmit1()}
             className="mr-2"
           >
             Cancel

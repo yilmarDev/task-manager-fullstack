@@ -11,7 +11,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { useNavigate } from 'react-router-dom';
 
 import { ArrowRight, CheckSquare, Eye, EyeOff, Lock, Mail } from 'lucide-react';
-import { useUserTokenQuery } from '../hooks/useUserTokenQuery';
+import { useUserTokenMutation } from '../hooks/useUserTokenMutation';
 import { setAccessToken } from '../utils/token';
 
 type Props = {};
@@ -28,7 +28,7 @@ export const LoginForm = (props: Props) => {
   const [showPassword, setShowPassword] = useState(false);
 
   const navigate = useNavigate();
-  const loginTokenMutation = useUserTokenQuery();
+  const loginTokenMutation = useUserTokenMutation();
   const { toast } = useToast();
 
   const {

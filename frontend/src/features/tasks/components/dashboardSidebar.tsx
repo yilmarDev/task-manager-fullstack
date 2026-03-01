@@ -14,9 +14,9 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
-import { currentUser } from '@/shared/data';
 import { useState } from 'react';
 import { useLogout } from '@/features/auth/hooks/useLogout';
+import { useCurrentUserQuery } from '@/features/auth/hooks/useCurrentUserQuery';
 
 const navItems = [
   { icon: LayoutDashboard, label: 'Dashboard', active: true },
@@ -30,6 +30,7 @@ export function DashboardSidebar() {
   const [collapsed, setCollapsed] = useState(false);
 
   const logout = useLogout();
+  const currentUsr = useCurrentUserQuery();
 
   return (
     <aside
@@ -104,16 +105,16 @@ export function DashboardSidebar() {
         >
           <Avatar className="size-9 shrink-0 ring-2 ring-sidebar-primary/30">
             <AvatarFallback className="bg-sidebar-primary text-sidebar-primary-foreground text-xs font-semibold">
-              {currentUser.avatar}
+              {currentUsr.data?.name ? currentUsr.data.name.slice(0, 2) : ''}
             </AvatarFallback>
           </Avatar>
           {!collapsed && (
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-sidebar-foreground truncate">
-                {currentUser.name}
+                {currentUsr.data?.name}
               </p>
               <p className="text-xs text-sidebar-foreground/50 truncate">
-                {currentUser.role}
+                {currentUsr.data?.role}
               </p>
             </div>
           )}
