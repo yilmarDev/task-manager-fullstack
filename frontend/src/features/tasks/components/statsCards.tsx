@@ -1,31 +1,32 @@
 'use client';
 
 import { ListTodo, Clock, Eye, CheckCircle2 } from 'lucide-react';
-import type { Task } from '@/shared/data';
+import type { AssignedTask } from '../interfaces/tasks';
+// import type { Task } from '@/shared/data';
 
 interface StatsCardsProps {
-  tasks: Task[];
+  tasks: AssignedTask[];
 }
 
 const statConfig = [
   {
-    label: 'To Do',
-    status: 'todo' as const,
+    label: 'Pending',
+    status: 'pending' as const,
     icon: ListTodo,
     colorClass: 'text-muted-foreground bg-muted',
   },
   {
     label: 'In Progress',
-    status: 'in-progress' as const,
+    status: 'in_progress' as const,
     icon: Clock,
     colorClass: 'text-primary bg-primary/10',
   },
-  {
-    label: 'In Review',
-    status: 'in-review' as const,
-    icon: Eye,
-    colorClass: 'text-amber-600 bg-amber-50',
-  },
+  // {
+  //   label: 'In Review',
+  //   status: 'in-review' as const,
+  //   icon: Eye,
+  //   colorClass: 'text-amber-600 bg-amber-50',
+  // },
   {
     label: 'Completed',
     status: 'completed' as const,
@@ -36,7 +37,7 @@ const statConfig = [
 
 export function StatsCards({ tasks }: StatsCardsProps) {
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-3 gap-4">
       {statConfig.map((stat) => {
         const count = tasks.filter((t) => t.status === stat.status).length;
         return (

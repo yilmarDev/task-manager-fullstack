@@ -8,23 +8,26 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CreateTaskModal } from '@/features/tasks/components/createTaskModal';
 import { initialTasks, type Task } from '@/shared/data';
+import { useAsignedTasksQuery } from '@/features/tasks/hooks/useAsignedTasksQuery';
+import type { AssignedTask } from '@/features/tasks/interfaces/tasks';
 
 export function TasksPage() {
-  const navigate = useNavigate();
-  const currentUserGetter = useCurrentUserQuery();
-  const logout = useLogout();
-
-  const [tasks, setTasks] = useState<Task[]>(initialTasks);
+  const [tasks, setTasks] = useState<AssignedTask[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
 
-  function handleCreateTask(taskData: Omit<Task, 'id' | 'createdAt'>) {
-    const newTask: Task = {
-      ...taskData,
-      id: `t${Date.now()}`,
-      createdAt: new Date().toISOString().split('T')[0] || '',
-    };
-    setTasks((prev) => [newTask, ...prev]);
-  }
+  const navigate = useNavigate();
+  const currentUserGetter = useCurrentUserQuery();
+
+  const tasksGetter = useAsignedTasksQuery();
+
+  // function handleCreateTask(taskData: Omit<Task, 'id' | 'createdAt'>) {
+  //   const newTask: Task = {
+  //     ...taskData,
+  //     id: `t${Date.now()}`,
+  //     createdAt: new Date().toISOString().split('T')[0] || '',
+  //   };
+  //   setTasks((prev) => [newTask, ...prev]);
+  // }
 
   useEffect(() => {
     if (currentUserGetter.data)
@@ -34,6 +37,17 @@ export function TasksPage() {
       navigate('/login');
     }
   }, [currentUserGetter.data, currentUserGetter.error]);
+
+  useEffect(() => {
+    if (tasksGetter.data) {
+      console.log('User data; ', tasksGetter.data);
+      setTasks(tasksGetter.data);
+    }
+    if (tasksGetter.error) {
+      console.log('Error:  ', tasksGetter.error);
+      navigate('/login');
+    }
+  }, [tasksGetter.data, tasksGetter.error]);
 
   return (
     <div className="flex h-screen bg-background overflow-hidden">

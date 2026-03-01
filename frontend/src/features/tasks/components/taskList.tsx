@@ -9,7 +9,7 @@ import { useAsignedTasksQuery } from '../hooks/useAsignedTasksQuery';
 import type { AssignedTask } from '../interfaces/tasks';
 
 interface TaskListProps {
-  tasks: Task[];
+  tasks: AssignedTask[];
   onCreateTask: () => void;
 }
 
@@ -21,24 +21,24 @@ const filters: { label: string; value: TaskStatus | 'all' }[] = [
   { label: 'Completed', value: 'completed' },
 ];
 
-export function TaskList({ onCreateTask }: TaskListProps) {
-  const [tasks, setTasks] = useState<AssignedTask[]>();
+export function TaskList({tasks, onCreateTask }: TaskListProps) {
+  // const [tasks, setTasks] = useState<AssignedTask[]>();
   const [activeFilter, setActiveFilter] = useState<TaskStatus | 'all'>('all');
 
-  const tasksGetter = useAsignedTasksQuery();
+  // const tasksGetter = useAsignedTasksQuery();
 
   const filteredTasks =
     activeFilter === 'all'
       ? tasks
       : tasks?.filter((t) => t.status === activeFilter);
 
-  useEffect(() => {
-    if (tasksGetter.data) {
-      console.log('Tasks list:', tasksGetter.data);
-      setTasks(tasksGetter.data);
-    }
-    if (tasksGetter.error) console.log('Tasks error: ', tasksGetter.error);
-  }, [tasksGetter.data, tasksGetter.error]);
+  // useEffect(() => {
+  //   if (tasksGetter.data) {
+  //     console.log('Tasks list:', tasksGetter.data);
+  //     setTasks(tasksGetter.data);
+  //   }
+  //   if (tasksGetter.error) console.log('Tasks error: ', tasksGetter.error);
+  // }, [tasksGetter.data, tasksGetter.error]);
 
   return (
     <div>
