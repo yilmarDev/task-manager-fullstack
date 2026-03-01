@@ -90,14 +90,14 @@ class Task(SQLModel, table=True):
         sa_relationship_kwargs={
             "primaryjoin": "Task.owner_id == User.id",
             "foreign_keys": "[Task.owner_id]",
-            "lazy": "noload",
+            "lazy": "selectin",
         }
     )
     assigned_to: Optional["User"] = Relationship(
         sa_relationship_kwargs={
             "primaryjoin": "Task.assigned_to_id == User.id",
             "foreign_keys": "[Task.assigned_to_id]",
-            "lazy": "noload",
+            "lazy": "selectin",
         }
     )
 

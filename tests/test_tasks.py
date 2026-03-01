@@ -119,7 +119,7 @@ class TestGetTask:
         data = response.json()
         assert data["id"] == str(test_task.id)
         assert data["title"] == test_task.title
-        assert data["owner_id"] == str(test_user.id)
+        assert data["owner"]["id"] == str(test_user.id)
 
     # @pytest.mark.asyncio
     # async def test_get_task_success_as_assignee(
