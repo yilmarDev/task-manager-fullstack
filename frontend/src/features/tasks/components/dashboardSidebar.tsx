@@ -16,6 +16,7 @@ import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import { currentUser } from '@/shared/data';
 import { useState } from 'react';
+import { useLogout } from '@/features/auth/hooks/useLogout';
 
 const navItems = [
   { icon: LayoutDashboard, label: 'Dashboard', active: true },
@@ -27,6 +28,8 @@ const navItems = [
 
 export function DashboardSidebar() {
   const [collapsed, setCollapsed] = useState(false);
+
+  const logout = useLogout();
 
   return (
     <aside
@@ -119,6 +122,7 @@ export function DashboardSidebar() {
               variant="ghost"
               size="icon"
               className="size-8 text-sidebar-foreground/40 hover:text-sidebar-foreground hover:bg-sidebar-accent shrink-0"
+              onClick={() => logout()}
             >
               <LogOut className="size-4" />
               <span className="sr-only">Sign out</span>

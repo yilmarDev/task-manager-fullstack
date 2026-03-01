@@ -6,7 +6,6 @@ import { StatsCards } from '@/features/tasks/components/statsCards';
 import { TaskList } from '@/features/tasks/components/taskList';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-// import type { Task } from '@/shared/data';
 import { CreateTaskModal } from '@/features/tasks/components/createTaskModal';
 import { initialTasks, type Task } from '@/shared/data';
 
