@@ -65,11 +65,7 @@ export function TasksPage() {
         </main>
       </div>
 
-      <CreateTaskModal
-        open={modalOpen}
-        onOpenChange={setModalOpen}
-        onCreateTask={handleCreateTask}
-      />
+      <CreateTaskModal open={modalOpen} onOpenChange={setModalOpen} />
     </div>
   );
 }
