@@ -27,7 +27,7 @@ export function LoginPage() {
   return (
     <div className="flex min-h-screen bg-background">
       {/* Left decorative panel -- hidden on mobile */}
-      <div className="hidden lg:flex lg:w-120 xl:w-135 flex-col justify-between bg-sidebar text-sidebar-foreground p-10">
+      <div className="hidden lg:flex lg:w-[480px] xl:w-[540px] flex-col justify-between bg-sidebar text-sidebar-foreground p-10">
         {/* Logo */}
         <div className="flex items-center gap-3">
           <div className="flex size-9 items-center justify-center rounded-lg bg-sidebar-primary">
