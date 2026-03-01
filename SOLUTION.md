@@ -139,6 +139,38 @@ The architectural choice to support these:
 
 ---
 
+## Ejecución con Docker (para reviewers)
+
+Para que un recruiter pueda levantar **base de datos, API de FastAPI y frontend de React** con un solo comando, el proyecto está preparado con `docker-compose` y un `Dockerfile` para el backend y otro para el frontend.
+
+### Pasos rápidos
+
+```bash
+cp .env.example .env  # opcional: puedes ajustar valores si lo necesitas
+docker compose up --build
+```
+
+Servicios y URLs expuestas:
+
+- Frontend (React + Vite): http://localhost:5173
+- API (root FastAPI): http://localhost:8000
+- Documentación Swagger: http://localhost:8000/docs
+
+Docker expone los puertos:
+
+- 5432 → Postgres
+- 8000 → API FastAPI
+- 5173 → Frontend de React
+
+### Detalles de configuración
+
+- El frontend usa Vite y Axios con `VITE_API_BASE_URL`, que se establece en el servicio `frontend` de docker-compose como `http://localhost:8000`.
+- El backend obtiene los orígenes CORS desde la variable `CORS_ORIGINS` (ver `.env.example` y `docker-compose.yml`) y en `src/main.py` se aplica como:
+  - `allow_origins=settings.cors_origins.split(",")`
+- De esta forma, el navegador habla con `http://localhost:5173`, que a su vez se comunica con la API en `http://localhost:8000`, y FastAPI acepta ese origen.
+
+---
+
 ## Planned Next Steps
 
 1. Define SQLModel models for User and Task
