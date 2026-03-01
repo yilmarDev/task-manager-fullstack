@@ -1,3 +1,5 @@
+from typing import Sequence
+
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 from datetime import datetime, timezone
@@ -12,6 +14,12 @@ class UserRepository:
 
     def __init__(self, db: AsyncSession):
         self.db = db
+
+    async def get_all_users(self) -> Sequence[User]:
+        """Get all users"""
+        query = select(User)
+        result = await self.db.execute(query)
+        return result.scalars().all()
 
     async def get_user_by_email(self, email: EmailStr) -> User | None:
         """Get user by email"""

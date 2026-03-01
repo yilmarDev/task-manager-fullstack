@@ -1,3 +1,5 @@
+from typing import Sequence
+
 from fastapi import APIRouter, status, HTTPException, Depends
 from uuid import UUID
 
@@ -6,6 +8,15 @@ from src.services.user_services import UserService
 from src.dependencies import get_user_service, get_current_user
 
 router = APIRouter(prefix="/api/users", tags=["Users"])
+
+
+@router.get("", response_model=Sequence[UserResponse])
+async def list_users(
+    current_user: UserResponse = Depends(get_current_user),
+    service: UserService = Depends(get_user_service),
+):
+    """Get all users (authenticated)"""
+    return await service.get_all_users()
 
 
 @router.post("", response_model=UserResponse, status_code=status.HTTP_201_CREATED)

@@ -1,3 +1,4 @@
+from typing import Sequence
 from uuid import UUID
 from passlib.context import CryptContext
 from src.models import UserCreate, UserResponse, User
@@ -21,6 +22,11 @@ class UserService:
     def verify_password(plain_password: str, hashed_password: str) -> bool:
         """Verify plain password against hashed password"""
         return pwd_context.verify(plain_password, hashed_password)
+
+    async def get_all_users(self) -> Sequence[UserResponse]:
+        """Get all users"""
+        users = await self.repo.get_all_users()
+        return [UserResponse.model_validate(user) for user in users]
 
     async def register_user(self, user_data: UserCreate) -> UserResponse:
         """Register a new user"""
