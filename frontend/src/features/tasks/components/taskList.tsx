@@ -3,8 +3,10 @@
 import { Plus, ListFilter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import type { Task, TaskStatus } from '@/shared/data';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { TaskCard } from './taskCard';
+import { useAsignedTasksQuery } from '../hooks/useAsignedTasksQuery';
+import type { AssignedTask } from '../interfaces/tasks';
 
 interface TaskListProps {
   tasks: Task[];
@@ -13,19 +15,30 @@ interface TaskListProps {
 
 const filters: { label: string; value: TaskStatus | 'all' }[] = [
   { label: 'All Tasks', value: 'all' },
-  { label: 'To Do', value: 'todo' },
-  { label: 'In Progress', value: 'in-progress' },
-  { label: 'In Review', value: 'in-review' },
+  { label: 'Pending', value: 'pending' },
+  { label: 'In Progress', value: 'in_progress' },
+  // { label: 'In Review', value: 'in-review' },
   { label: 'Completed', value: 'completed' },
 ];
 
-export function TaskList({ tasks, onCreateTask }: TaskListProps) {
+export function TaskList({ onCreateTask }: TaskListProps) {
+  const [tasks, setTasks] = useState<AssignedTask[]>();
   const [activeFilter, setActiveFilter] = useState<TaskStatus | 'all'>('all');
+
+  const tasksGetter = useAsignedTasksQuery();
 
   const filteredTasks =
     activeFilter === 'all'
       ? tasks
-      : tasks.filter((t) => t.status === activeFilter);
+      : tasks?.filter((t) => t.status === activeFilter);
+
+  useEffect(() => {
+    if (tasksGetter.data) {
+      console.log('Tasks list:', tasksGetter.data);
+      setTasks(tasksGetter.data);
+    }
+    if (tasksGetter.error) console.log('Tasks error: ', tasksGetter.error);
+  }, [tasksGetter.data, tasksGetter.error]);
 
   return (
     <div>
@@ -35,7 +48,7 @@ export function TaskList({ tasks, onCreateTask }: TaskListProps) {
           <ListFilter className="size-[18px] text-muted-foreground" />
           <h2 className="text-lg font-semibold text-foreground">Tasks</h2>
           <span className="text-sm text-muted-foreground">
-            ({filteredTasks.length})
+            ({filteredTasks?.length})
           </span>
         </div>
         <Button
@@ -66,7 +79,7 @@ export function TaskList({ tasks, onCreateTask }: TaskListProps) {
 
       {/* Task cards */}
       <div className="flex flex-col gap-3">
-        {filteredTasks.length === 0 ? (
+        {filteredTasks?.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <div className="flex items-center justify-center size-12 rounded-xl bg-muted mb-4">
               <ListFilter className="size-5 text-muted-foreground" />
@@ -79,7 +92,7 @@ export function TaskList({ tasks, onCreateTask }: TaskListProps) {
             </p>
           </div>
         ) : (
-          filteredTasks.map((task) => <TaskCard key={task.id} task={task} />)
+          filteredTasks?.map((task) => <TaskCard key={task.id} task={task} />)
         )}
       </div>
     </div>

@@ -3,24 +3,20 @@
 import { CalendarDays, Clock } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import type { Task, TaskStatus } from '@/shared/data';
+import type { TaskStatus } from '@/shared/data';
 import { format, parseISO } from 'date-fns';
+import type { AssignedTask } from '../interfaces/tasks';
 
 const statusConfig: Record<TaskStatus, { label: string; className: string }> = {
-  todo: {
-    label: 'To Do',
+  pending: {
+    label: 'Pending',
     className:
       'bg-muted text-muted-foreground border-transparent hover:bg-muted',
   },
-  'in-progress': {
+  in_progress: {
     label: 'In Progress',
     className:
       'bg-primary/10 text-primary border-transparent hover:bg-primary/15',
-  },
-  'in-review': {
-    label: 'In Review',
-    className:
-      'bg-amber-50 text-amber-700 border-transparent hover:bg-amber-100',
   },
   completed: {
     label: 'Completed',
@@ -30,7 +26,7 @@ const statusConfig: Record<TaskStatus, { label: string; className: string }> = {
 };
 
 interface TaskCardProps {
-  task: Task;
+  task: AssignedTask;
 }
 
 export function TaskCard({ task }: TaskCardProps) {
@@ -56,11 +52,11 @@ export function TaskCard({ task }: TaskCardProps) {
         <div className="flex items-center gap-2 shrink-0 sm:ml-4">
           <Avatar className="size-7">
             <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-semibold">
-              {task.assignedTo.avatar}
+              {task.assigned_to.name.slice(0, 2)}
             </AvatarFallback>
           </Avatar>
           <span className="text-xs font-medium text-muted-foreground sm:hidden">
-            {task.assignedTo.name}
+            {task.assigned_to.name}
           </span>
         </div>
       </div>
@@ -69,20 +65,22 @@ export function TaskCard({ task }: TaskCardProps) {
       <div className="flex items-center gap-4 mt-4 pt-4 border-t border-border">
         <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
           <CalendarDays className="size-3.5" />
-          <span>Due {format(parseISO(task.dueDate), 'MMM d, yyyy')}</span>
+          <span>Due {format(parseISO(task.due_date), 'MMM d, yyyy')}</span>
         </div>
         <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
           <Clock className="size-3.5" />
-          <span>Created {format(parseISO(task.createdAt), 'MMM d, yyyy')}</span>
+          <span>
+            Created {format(parseISO(task.created_at), 'MMM d, yyyy')}
+          </span>
         </div>
         <div className="hidden sm:flex items-center gap-1.5 ml-auto">
           <Avatar className="size-5">
             <AvatarFallback className="bg-primary/10 text-primary text-[8px] font-semibold">
-              {task.assignedTo.avatar}
+              {task.assigned_to.name.slice(0, 2)}
             </AvatarFallback>
           </Avatar>
           <span className="text-xs text-muted-foreground">
-            {task.assignedTo.name}
+            {task.assigned_to.name}
           </span>
         </div>
       </div>

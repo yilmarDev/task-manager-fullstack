@@ -1,4 +1,4 @@
-export type TaskStatus = 'todo' | 'in-progress' | 'in-review' | 'completed';
+export type TaskStatus = 'pending' | 'in_progress' | 'completed';
 
 export interface User {
   id: string;
@@ -71,7 +71,7 @@ export const initialTasks: Task[] = [
     title: 'Design system token audit',
     description:
       'Review and update all design tokens to ensure consistency across the component library. Document any breaking changes.',
-    status: 'in-progress',
+    status: 'in_progress',
     dueDate: '2026-03-05',
     createdAt: '2026-02-20',
     assignedTo: teamMembers[2] || currentUser,
@@ -81,7 +81,7 @@ export const initialTasks: Task[] = [
     title: 'API rate limiting implementation',
     description:
       'Implement rate limiting on all public API endpoints using a sliding window algorithm. Include proper 429 response handling.',
-    status: 'todo',
+    status: 'pending',
     dueDate: '2026-03-10',
     createdAt: '2026-02-22',
     assignedTo: teamMembers[3] || currentUser,
@@ -91,7 +91,7 @@ export const initialTasks: Task[] = [
     title: 'Onboarding flow user testing',
     description:
       'Conduct usability testing with 8 participants for the new onboarding wizard. Compile findings into a report with recommendations.',
-    status: 'in-review',
+    status: 'pending',
     dueDate: '2026-03-01',
     createdAt: '2026-02-18',
     assignedTo: teamMembers[2] || currentUser,
@@ -111,7 +111,7 @@ export const initialTasks: Task[] = [
     title: 'Performance monitoring dashboard',
     description:
       'Build a real-time performance monitoring dashboard showing key metrics like p95 latency, error rates, and throughput.',
-    status: 'todo',
+    status: 'pending',
     dueDate: '2026-03-15',
     createdAt: '2026-02-25',
     assignedTo: teamMembers[1] || currentUser,
@@ -121,7 +121,7 @@ export const initialTasks: Task[] = [
     title: 'End-to-end test suite expansion',
     description:
       'Add comprehensive E2E tests for the checkout flow, user settings, and team management modules using Playwright.',
-    status: 'in-progress',
+    status: 'in_progress',
     dueDate: '2026-03-08',
     createdAt: '2026-02-21',
     assignedTo: teamMembers[4] || currentUser,
