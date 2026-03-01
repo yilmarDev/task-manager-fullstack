@@ -1,5 +1,5 @@
-import { LeftPanel } from '@/components/login/LeftPanel';
-import { LoginForm } from '@/components/login/LoginForm';
+import { LeftPanel } from '@/features/auth/components/LeftPanel';
+import { LoginForm } from '@/features/auth/components/LoginForm';
 
 export const LoginPage = () => {
   return (
