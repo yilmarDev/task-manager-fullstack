@@ -8,9 +8,15 @@ import { currentUser } from '@/shared/data';
 
 interface DashboardHeaderProps {
   onCreateTask: () => void;
+  searchTerm: string;
+  onSearchChange: (value: string) => void;
 }
 
-export function DashboardHeader({ onCreateTask }: DashboardHeaderProps) {
+export function DashboardHeader({
+  onCreateTask,
+  searchTerm,
+  onSearchChange,
+}: DashboardHeaderProps) {
   return (
     <header className="flex items-center justify-between border-b border-border bg-card px-4 lg:px-8 h-16 shrink-0">
       {/* Mobile logo */}
@@ -33,7 +39,9 @@ export function DashboardHeader({ onCreateTask }: DashboardHeaderProps) {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
           <Input
             placeholder="Search tasks..."
-            className="pl-9 bg-muted/50 border-transparent focus:bg-card focus:border-input h-9"
+            value={searchTerm}
+            onChange={(e) => onSearchChange(e.target.value)}
+            className="pl-9 bg-muted/50 border-transparent focus:bg-background focus:border-input text-foreground h-9"
           />
         </div>
       </div>

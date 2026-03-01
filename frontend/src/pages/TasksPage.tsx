@@ -14,6 +14,16 @@ import type { AssignedTask } from '@/features/tasks/interfaces/tasks';
 export function TasksPage() {
   const [tasks, setTasks] = useState<AssignedTask[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const filteredTasks = tasks.filter((task) => {
+    if (!searchTerm.trim()) return true;
+    const term = searchTerm.toLowerCase();
+    return (
+      task.title.toLowerCase().includes(term) ||
+      task.description.toLowerCase().includes(term)
+    );
+  });
 
   const navigate = useNavigate();
   const currentUserGetter = useCurrentUserQuery();
@@ -54,7 +64,11 @@ export function TasksPage() {
       <DashboardSidebar />
 
       <div className="flex flex-col flex-1 min-w-0">
-        <DashboardHeader onCreateTask={() => setModalOpen(true)} />
+        <DashboardHeader
+          onCreateTask={() => setModalOpen(true)}
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+        />
 
         <main className="flex-1 overflow-y-auto">
           <div className="max-w-5xl mx-auto px-4 lg:px-8 py-8">
@@ -70,11 +84,14 @@ export function TasksPage() {
 
             {/* Stats */}
             <div className="mb-8">
-              <StatsCards tasks={tasks} />
+              <StatsCards tasks={filteredTasks} />
             </div>
 
             {/* Task list */}
-            <TaskList tasks={tasks} onCreateTask={() => setModalOpen(true)} />
+            <TaskList
+              tasks={filteredTasks}
+              onCreateTask={() => setModalOpen(true)}
+            />
           </div>
         </main>
       </div>
