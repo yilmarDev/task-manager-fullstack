@@ -48,6 +48,10 @@ function App() {
             <strong>Health Status:</strong> {health.status} - {health.service}
           </p>
         )}
+
+        <div className="min-h-screen bg-slate-900 text-slate-100 flex items-center justify-center">
+          <h1 className="">Task Manager</h1>
+        </div>
       </main>
     </div>
   );
