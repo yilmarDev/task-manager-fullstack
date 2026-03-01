@@ -1,7 +1,15 @@
 from uuid import UUID
 from datetime import datetime, timezone
 
-from src.models import Task, TaskCreate, TaskUpdate, TaskResponse, TaskStatus, User
+from src.models import (
+    Task,
+    TaskCreate,
+    TaskUpdate,
+    TaskResponse,
+    TaskDetailResponse,
+    TaskStatus,
+    User,
+)
 from src.repositories.task_repository import TaskRepository
 
 
@@ -30,9 +38,9 @@ class TaskService:
         created_task = await self.repo.create_task(task)
         return TaskResponse.model_validate(created_task)
 
-    async def get_task(self, task_id: UUID, user_id: UUID) -> TaskResponse:
+    async def get_task(self, task_id: UUID, user_id: UUID) -> TaskDetailResponse:
         """Get a task with permission check"""
-        task = await self.repo.get_task_by_id(task_id)
+        task = await self.repo.get_task_by_id_with_users(task_id)
         if not task:
             raise ValueError(f"Task with id {task_id} not found")
 
@@ -40,24 +48,24 @@ class TaskService:
         if task.owner_id != user_id and task.assigned_to_id != user_id:
             raise PermissionError("You don't have permission to view this task")
 
-        return TaskResponse.model_validate(task)
+        return TaskDetailResponse.model_validate(task)
 
     async def list_user_tasks(
         self, user_id: UUID, status: TaskStatus | None = None
-    ) -> list[TaskResponse]:
+    ) -> list[TaskDetailResponse]:
         """List tasks owned by user, optionally filtered by status"""
         if status:
             tasks = await self.repo.get_tasks_by_status(user_id, status)
         else:
             tasks = await self.repo.get_tasks_by_owner(user_id)
 
-        return [TaskResponse.model_validate(task) for task in tasks]
+        return [TaskDetailResponse.model_validate(task) for task in tasks]
 
-    async def list_assigned_tasks(self, user_id: UUID) -> list[TaskResponse]:
+    async def list_assigned_tasks(self, user_id: UUID) -> list[TaskDetailResponse]:
         """List tasks assigned to user"""
         tasks = await self.repo.get_tasks_assigned_to(user_id)
 
-        return [TaskResponse.model_validate(task) for task in tasks]
+        return [TaskDetailResponse.model_validate(task) for task in tasks]
 
     async def update_task(
         self, task_id: UUID, user_id: UUID, task_data: dict

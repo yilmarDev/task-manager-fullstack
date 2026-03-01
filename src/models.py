@@ -1,9 +1,9 @@
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 from uuid import uuid4, UUID
 
-from sqlmodel import Field, SQLModel
+from sqlmodel import Field, Relationship, SQLModel
 from sqlalchemy import Column, DateTime
 
 
@@ -85,6 +85,22 @@ class Task(SQLModel, table=True):
         sa_column=Column(DateTime(timezone=True)),
     )
 
+    # Relationships
+    owner: Optional["User"] = Relationship(
+        sa_relationship_kwargs={
+            "primaryjoin": "Task.owner_id == User.id",
+            "foreign_keys": "[Task.owner_id]",
+            "lazy": "noload",
+        }
+    )
+    assigned_to: Optional["User"] = Relationship(
+        sa_relationship_kwargs={
+            "primaryjoin": "Task.assigned_to_id == User.id",
+            "foreign_keys": "[Task.assigned_to_id]",
+            "lazy": "noload",
+        }
+    )
+
 
 class TaskCreate(SQLModel):
     """Schema for creating a task (request)"""
@@ -105,6 +121,14 @@ class TaskUpdate(SQLModel):
     due_date: Optional[datetime] = None
 
 
+class UserSummary(SQLModel):
+    """Minimal user info to embed in task responses"""
+
+    id: UUID
+    name: str
+    email: str
+
+
 class TaskResponse(SQLModel):
     """Schema for task response"""
 
@@ -114,6 +138,20 @@ class TaskResponse(SQLModel):
     status: TaskStatus
     owner_id: UUID
     assigned_to_id: Optional[UUID]
+    due_date: Optional[datetime]
+    created_at: datetime
+    updated_at: datetime
+
+
+class TaskDetailResponse(SQLModel):
+    """Task response with embedded user data"""
+
+    id: UUID
+    title: str
+    description: Optional[str]
+    status: TaskStatus
+    owner: UserSummary
+    assigned_to: Optional[UserSummary]
     due_date: Optional[datetime]
     created_at: datetime
     updated_at: datetime

@@ -1,6 +1,7 @@
 from uuid import UUID
 from sqlmodel import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 from datetime import datetime, timezone
 
 from src.models import Task, TaskStatus
@@ -16,26 +17,58 @@ class TaskRepository:
         """Get a single task by ID"""
         return await self.db.get(Task, task_id)
 
+    async def get_task_by_id_with_users(self, task_id: UUID) -> Task | None:
+        """Get a single task by ID with owner and assigned_to loaded"""
+        query = (
+            select(Task)
+            .where(Task.id == task_id)
+            .options(
+                selectinload(Task.owner),  # type: ignore[arg-type]
+                selectinload(Task.assigned_to),  # type: ignore[arg-type]
+            )
+        )
+        result = await self.db.execute(query)
+        return result.scalar_one_or_none()
+
     async def get_tasks_by_owner(self, owner_id: UUID) -> list[Task]:
-        """Get all tasks owned by a user"""
-        query = select(Task).where(Task.owner_id == owner_id)
+        """Get all tasks owned by a user with related users"""
+        query = (
+            select(Task)
+            .where(Task.owner_id == owner_id)
+            .options(
+                selectinload(Task.owner),  # type: ignore[arg-type]
+                selectinload(Task.assigned_to),  # type: ignore[arg-type]
+            )
+        )
         result = await self.db.execute(query)
         return list(result.scalars().all())
 
     async def get_tasks_by_status(
         self, owner_id: UUID, status: TaskStatus
     ) -> list[Task]:
-        """Get tasks by owner and status"""
+        """Get tasks by owner and status with related users"""
         status_value = status.value if isinstance(status, TaskStatus) else status
-        query = select(Task).where(
-            (Task.owner_id == owner_id) & (Task.status == status_value)
+        query = (
+            select(Task)
+            .where((Task.owner_id == owner_id) & (Task.status == status_value))
+            .options(
+                selectinload(Task.owner),  # type: ignore[arg-type]
+                selectinload(Task.assigned_to),  # type: ignore[arg-type]
+            )
         )
         result = await self.db.execute(query)
         return list(result.scalars().all())
 
     async def get_tasks_assigned_to(self, user_id: UUID) -> list[Task]:
-        """Get tasks assigned to a specific user"""
-        query = select(Task).where(Task.assigned_to_id == user_id)
+        """Get tasks assigned to a specific user with related users"""
+        query = (
+            select(Task)
+            .where(Task.assigned_to_id == user_id)
+            .options(
+                selectinload(Task.owner),  # type: ignore[arg-type]
+                selectinload(Task.assigned_to),  # type: ignore[arg-type]
+            )
+        )
         result = await self.db.execute(query)
         return list(result.scalars().all())
 

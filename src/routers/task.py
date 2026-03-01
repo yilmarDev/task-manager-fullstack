@@ -1,7 +1,14 @@
 from fastapi import APIRouter, status, HTTPException, Depends
 from uuid import UUID
 
-from src.models import TaskCreate, TaskResponse, TaskUpdate, TaskStatus, UserResponse
+from src.models import (
+    TaskCreate,
+    TaskResponse,
+    TaskDetailResponse,
+    TaskUpdate,
+    TaskStatus,
+    UserResponse,
+)
 from src.services.task_services import TaskService
 from src.dependencies import get_task_service, get_current_user
 
@@ -24,7 +31,7 @@ async def create_task(
         )
 
 
-@router.get("/assigned", response_model=list[TaskResponse])
+@router.get("/assigned", response_model=list[TaskDetailResponse])
 async def list_assigned_tasks(
     current_user: UserResponse = Depends(get_current_user),
     service: TaskService = Depends(get_task_service),
@@ -33,7 +40,7 @@ async def list_assigned_tasks(
     return await service.list_assigned_tasks(current_user.id)
 
 
-@router.get("", response_model=list[TaskResponse])
+@router.get("", response_model=list[TaskDetailResponse])
 async def list_tasks(
     status: TaskStatus | None = None,
     current_user: UserResponse = Depends(get_current_user),
@@ -43,7 +50,7 @@ async def list_tasks(
     return await service.list_user_tasks(current_user.id, status)
 
 
-@router.get("/{task_id}", response_model=TaskResponse)
+@router.get("/{task_id}", response_model=TaskDetailResponse)
 async def get_task(
     task_id: UUID,
     current_user: UserResponse = Depends(get_current_user),
