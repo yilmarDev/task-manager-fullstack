@@ -12,6 +12,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { ArrowRight, CheckSquare, Eye, EyeOff, Lock, Mail } from 'lucide-react';
 import { useUserTokenQuery } from '../hooks/useUserTokenQuery';
+import { setAccessToken } from '../utils/token';
 
 type Props = {};
 
@@ -52,7 +53,8 @@ export const LoginForm = (props: Props) => {
       });
 
       console.log('Token info', data);
-      localStorage.setItem('Authorization', data.access_token);
+      // localStorage.setItem('Authorization', data.access_token);
+      setAccessToken(data.access_token);
 
       toast({
         title: 'Welcome back! 🎉',
@@ -62,7 +64,7 @@ export const LoginForm = (props: Props) => {
 
       navigate('/tasks');
     } catch (error) {
-      console.error('Login error::::::', error);
+      console.error('Login error: ', error);
       toast({
         title: 'Login failed',
         description: 'Invalid email or password. Please try again.',
