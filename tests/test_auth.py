@@ -246,10 +246,10 @@ class TestTokenContent:
         )
         token1 = response1.json()["access_token"]
 
-        # Second login (small delay for different timestamp)
+        # Second login (1s delay to ensure a different exp timestamp)
         import asyncio
 
-        await asyncio.sleep(0.1)
+        await asyncio.sleep(1)
 
         response2 = await client.post(
             "/api/auth/login",

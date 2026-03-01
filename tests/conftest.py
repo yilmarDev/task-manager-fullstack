@@ -87,6 +87,35 @@ async def test_user(test_db_session):
 
 
 @pytest.fixture
+async def owner_user(test_db_session):
+    """Create a test user with owner role"""
+    from src.services.user_services import UserService
+    from src.repositories.user_repository import UserRepository
+
+    repo = UserRepository(test_db_session)
+    service = UserService(repo)
+
+    user = User(
+        id=uuid4(),
+        name="Owner User",
+        email="owner@example.com",
+        password_hash=service.hash_password("ownerpass123"),
+        role="owner",
+    )
+
+    created_user = await repo.create_user(user)
+    return created_user
+
+
+@pytest.fixture
+def owner_auth_client(client: AsyncClient, owner_user):
+    """Client simulating a logged-in owner"""
+    app.dependency_overrides[get_current_user] = lambda: owner_user
+    yield client
+    app.dependency_overrides.clear()
+
+
+@pytest.fixture
 async def test_task(test_db_session, test_user):
     """Create a test task in the database"""
     from src.models import Task, TaskStatus

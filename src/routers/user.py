@@ -15,7 +15,12 @@ async def list_users(
     current_user: UserResponse = Depends(get_current_user),
     service: UserService = Depends(get_user_service),
 ):
-    """Get all users (authenticated)"""
+    """Get all users (owner only)"""
+    if current_user.role != "owner":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only owners can list all users",
+        )
     return await service.get_all_users()
 
 
@@ -64,7 +69,7 @@ async def update_user(
     service: UserService = Depends(get_user_service),
 ):
     """Update user information"""
-    if current_user.id != user_id:
+    if current_user.id != user_id and current_user.role != "owner":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You don't have permission to modify this profile",

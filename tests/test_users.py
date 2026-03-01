@@ -217,6 +217,78 @@ class TestUpdateUser:
         assert data["email"] == "newemail@example.com"
 
 
+class TestListUsers:
+    """Test suite for list users endpoint"""
+
+    @pytest.mark.asyncio
+    async def test_list_users_as_owner(
+        self, owner_auth_client: AsyncClient, owner_user
+    ):
+        """Test that an owner can list all users"""
+        response = await owner_auth_client.get("/api/users")
+
+        assert response.status_code == 200
+        data = response.json()
+        assert isinstance(data, list)
+        assert len(data) >= 1
+        # Verify owner is in the list
+        emails = [u["email"] for u in data]
+        assert owner_user.email in emails
+        # Verify password is not exposed
+        for user in data:
+            assert "password_hash" not in user
+
+    @pytest.mark.asyncio
+    async def test_list_users_as_owner_multiple_users(
+        self, owner_auth_client: AsyncClient, owner_user, test_user
+    ):
+        """Test that owner sees all users in the list"""
+        response = await owner_auth_client.get("/api/users")
+
+        assert response.status_code == 200
+        data = response.json()
+        emails = [u["email"] for u in data]
+        assert owner_user.email in emails
+        assert test_user.email in emails
+        assert len(data) >= 2
+
+    @pytest.mark.asyncio
+    async def test_list_users_as_member_forbidden(
+        self, auth_client: AsyncClient, test_user
+    ):
+        """Test that a member cannot list all users"""
+        response = await auth_client.get("/api/users")
+
+        assert response.status_code == 403
+        assert "Only owners" in response.json()["detail"]
+
+    @pytest.mark.asyncio
+    async def test_list_users_unauthenticated(self, client: AsyncClient):
+        """Test that unauthenticated request is rejected"""
+        response = await client.get("/api/users")
+
+        assert response.status_code == 401
+
+    @pytest.mark.asyncio
+    async def test_list_users_response_fields(
+        self, owner_auth_client: AsyncClient, owner_user
+    ):
+        """Test that each user in the response has the expected fields"""
+        response = await owner_auth_client.get("/api/users")
+
+        assert response.status_code == 200
+        data = response.json()
+        for user in data:
+            assert "id" in user
+            assert "name" in user
+            assert "email" in user
+            assert "role" in user
+            assert "created_at" in user
+            assert "updated_at" in user
+            assert "password_hash" not in user
+            assert "password" not in user
+
+
 class TestHealthCheck:
     """Test suite for health check endpoint"""
 
