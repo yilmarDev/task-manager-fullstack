@@ -14,7 +14,7 @@ export const getUserToken = async (
   formData.append('password', credentials.password);
 
   const { data } = await apiConn.post<LoginTokenResponse>(
-    `/auth/login`,
+    `auth/login`,
     formData,
     {
       headers: {
@@ -30,6 +30,6 @@ export const getCurrentUser = async (): Promise<GetUserResponse | null> => {
   const id = getUserIdFromToken();
   if (!id) return null;
 
-  const { data } = await apiConn.get<GetUserResponse>(`/users/${id}`);
+  const { data } = await apiConn.get<GetUserResponse>(`users/${id}`);
   return data;
 };
