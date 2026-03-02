@@ -1,0 +1,7 @@
+frontend
+htmlcov
+node_modules
+.venv
+.pytest_cache
+.vscode
+.git

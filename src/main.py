@@ -4,10 +4,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.config import settings
-from src.db import get_db, create_db_and_tables
+from src.db import get_db, create_db_and_tables, AsyncSessionLocal
 from src.routers.user import router as users_router
 from src.routers.task import router as tasks_router
 from src.routers.auth import router as auth_router
+from src.seed import seed_demo_admin
 
 
 @asynccontextmanager
@@ -15,6 +16,10 @@ async def lifespan(app: FastAPI):
     """Manage application lifespan - create tables on startup"""
     # Startup
     await create_db_and_tables()
+    # Seed demo data (e.g., owner user) when explicitly enabled
+    if settings.seed_demo_data:
+        async with AsyncSessionLocal() as session:
+            await seed_demo_admin(session)
     yield
     # Shutdown
     pass

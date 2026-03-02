@@ -17,6 +17,13 @@ class Settings(BaseSettings):
     # CORS
     cors_origins: str = "http://localhost:5173"
 
+    # Demo / seeding
+    seed_demo_data: bool = False
+    demo_admin_email: str = "admin@example.com"
+    demo_admin_password: str | None = None
+    demo_member_email: str = "member@example.com"
+    demo_member_password: str | None = None
+
     model_config = SettingsConfigDict(
         env_file=".env",
         case_sensitive=False,
