@@ -16,6 +16,8 @@ export function TasksPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
+  const logout = useLogout();
+
   const filteredTasks = tasks.filter((task) => {
     if (!searchTerm.trim()) return true;
     const term = searchTerm.toLowerCase();
@@ -30,20 +32,12 @@ export function TasksPage() {
 
   const tasksGetter = useAsignedTasksQuery();
 
-  // function handleCreateTask(taskData: Omit<Task, 'id' | 'createdAt'>) {
-  //   const newTask: Task = {
-  //     ...taskData,
-  //     id: `t${Date.now()}`,
-  //     createdAt: new Date().toISOString().split('T')[0] || '',
-  //   };
-  //   setTasks((prev) => [newTask, ...prev]);
-  // }
-
   useEffect(() => {
     if (currentUserGetter.data)
       console.log('User data; ', currentUserGetter.data);
     if (currentUserGetter.error) {
       console.log('Error:  ', currentUserGetter.error);
+      logout();
       navigate('/login');
     }
   }, [currentUserGetter.data, currentUserGetter.error]);

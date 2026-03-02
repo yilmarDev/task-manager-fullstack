@@ -4,7 +4,7 @@ import { Bell, Search, Menu, CheckSquare } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { currentUser } from '@/shared/data';
+import { useCurrentUserQuery } from '@/features/auth/hooks/useCurrentUserQuery';
 
 interface DashboardHeaderProps {
   onCreateTask: () => void;
@@ -17,6 +17,8 @@ export function DashboardHeader({
   searchTerm,
   onSearchChange,
 }: DashboardHeaderProps) {
+  const currentUser = useCurrentUserQuery();
+
   return (
     <header className="flex items-center justify-between border-b border-border bg-card px-4 lg:px-8 h-16 shrink-0">
       {/* Mobile logo */}
@@ -49,6 +51,7 @@ export function DashboardHeader({
       {/* Right section */}
       <div className="flex items-center gap-2">
         <Button
+          disabled={!currentUser.data || currentUser.data.role !== 'owner'}
           onClick={onCreateTask}
           size="sm"
           className="hidden sm:flex h-9 bg-primary text-primary-foreground hover:bg-primary/90"
@@ -66,7 +69,7 @@ export function DashboardHeader({
         </Button>
         <Avatar className="size-8 lg:hidden">
           <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
-            {currentUser.avatar}
+            {currentUser.data?.name.slice(0, 2) || ''}
           </AvatarFallback>
         </Avatar>
       </div>
