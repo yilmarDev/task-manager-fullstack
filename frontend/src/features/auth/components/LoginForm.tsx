@@ -56,11 +56,11 @@ export const LoginForm = (props: Props) => {
       // localStorage.setItem('Authorization', data.access_token);
       setAccessToken(data.access_token);
 
-      toast({
-        title: 'Welcome back! 🎉',
-        description: 'You have logged in successfully.',
-        variant: 'success',
-      });
+      // toast({
+      //   title: 'Welcome back! 🎉',
+      //   description: 'You have logged in successfully.',
+      //   variant: 'success',
+      // });
 
       navigate('/tasks');
     } catch (error) {

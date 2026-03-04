@@ -10,6 +10,8 @@ import { CreateTaskModal } from '@/features/tasks/components/createTaskModal';
 import { initialTasks, type Task } from '@/shared/data';
 import { useAsignedTasksQuery } from '@/features/tasks/hooks/useAsignedTasksQuery';
 import type { AssignedTask } from '@/features/tasks/interfaces/tasks';
+import { DeleteTaskDialog } from '@/features/tasks/components/deleteTaskDialog';
+import { EditTaskSheet } from '@/features/tasks/components/editTaskSheet';
 
 export function TasksPage() {
   const [tasks, setTasks] = useState<AssignedTask[]>([]);
@@ -86,6 +88,9 @@ export function TasksPage() {
               tasks={filteredTasks}
               onCreateTask={() => setModalOpen(true)}
             />
+
+            <DeleteTaskDialog />
+            <EditTaskSheet />
           </div>
         </main>
       </div>
