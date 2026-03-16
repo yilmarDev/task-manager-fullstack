@@ -36,6 +36,51 @@ This separation lets me:
 
 ---
 
+## Backend Dependency Changes
+
+The starter project included a minimal FastAPI setup. During the implementation I introduced several dependencies to support authentication, database modeling, testing and file handling required by the MVP.
+
+### Authentication & Security
+
+- pyjwt
+  Used to implement JWT-based authentication. It is a lightweight and widely adopted library in the Python ecosystem and integrates easily with FastAPI authentication flows.
+
+- passlib + bcrypt
+  Used for password hashing and verification. passlib provides a clean abstraction for password hashing algorithms, while bcrypt offers a secure and battle-tested hashing implementation suitable for storing user credentials.
+
+### Database & ORM
+
+- SQLModel
+  Introduced to define database models and request/response schemas using a unified API.
+
+  SQLModel builds on top of SQLAlchemy and Pydantic, which allows:
+  - concise model definitions
+  - automatic schema validation
+  - tight integration with FastAPI
+
+This simplified the implementation of the User and Task models while keeping the system compatible with SQLAlchemy 2.x.
+
+- aiosqlite
+  Added to simplify local development and testing scenarios when using SQLite with async SQLAlchemy sessions. Although PostgreSQL is used in Docker, SQLite support can be useful for lightweight test setups.
+
+### API & Request Handling
+
+- python-multipart
+  Required by FastAPI to support form-based requests such as the OAuth2 login flow (username / password form fields).
+
+- httpx
+  Added as a modern async HTTP client. While not heavily used in the MVP, it is useful for integrations with external services and is commonly used in FastAPI testing.
+
+### Testing & Quality
+
+- pytest-cov and coverage
+  Introduced to measure test coverage and generate coverage reports. This helps ensure that critical flows such as authentication and task operations are tested and maintain acceptable coverage levels.
+
+  Overall, the selected dependencies follow common conventions in the FastAPI ecosystem, prioritizing:
+  - Compatibility with async-first architecture
+  - Maintainability and readability
+  - Tools commonly used in production Python APIs
+
 ## Backend Design
 
 ### Configuration (`src/config.py`)
@@ -178,6 +223,72 @@ Security considerations:
 - Fixtures in `tests/conftest.py` provide isolated DB sessions and HTTP clients so that tests are deterministic and fast.
 
 This meets the requirement of “production-readiness” by ensuring critical flows (auth, tasks) are covered.
+
+## Backend Async
+
+The backend uses asynchronous database access through SQLAlchemy with the asyncpg driver.
+
+The connection URL follows the SQLAlchemy async format:
+
+```sh
+postgresql+asyncpg://user:password@host:port/database
+```
+
+This configuration allows SQLAlchemy to run in async mode, delegating all PostgreSQL communication to the asyncpg driver.
+
+### Why Use an Asynchronous Driver
+
+The API is implemented with FastAPI, which is built on top of Starlette and the ASGI specification.
+
+FastAPI is designed to take advantage of Python’s async/await concurrency model. In this model, when an I/O operation occurs (such as a database query), the event loop can temporarily suspend that task and continue processing other requests.
+
+Using an asynchronous database driver ensures that database operations do not block the event loop, allowing the same process to serve multiple concurrent requests efficiently.
+
+If a synchronous driver were used instead, the thread handling the request would block while waiting for the database response. This reduces the concurrency benefits of an async web framework.
+
+### Advantages Over a Synchronous Driver
+
+A synchronous PostgreSQL driver such as psycopg2 works perfectly well with frameworks like Flask or Django that rely on a threaded or WSGI execution model. However, when used inside an async application, it introduces blocking behavior.
+
+Using an asynchronous driver such as asyncpg provides several advantages:
+
+- Better Concurrency:
+  While waiting for database I/O, the event loop can process other requests. This improves throughput in environments with multiple concurrent users.
+- Efficient Resource Usage
+  Async I/O avoids blocking threads, allowing a single process to handle more concurrent connections with fewer resources.
+
+  This is particularly beneficial in containerized environments (like the Docker setup used in this project), where efficient CPU and memory usage improves scalability.
+
+### Alignment With the Application Stack
+
+The rest of the backend stack already uses asynchronous components:
+
+- FastAPI endpoints (async def)
+- Async SQLAlchemy engine
+- Async sessions (AsyncSession)
+- Async test execution (pytest-asyncio)
+
+Using an async driver ensures that the entire request pipeline remains non-blocking, avoiding situations where async code calls blocking database operations.
+
+### Why asyncpg
+
+asyncpg was selected because it is currently the most widely adopted asynchronous PostgreSQL driver in the Python ecosystem and is well supported by SQLAlchemy’s async engine. It provides:
+
+- High performance for PostgreSQL workloads
+- Native async/await support
+- Compatibility with SQLAlchemy 2.x async APIs
+
+This makes it a natural fit for modern async frameworks such as FastAPI.
+
+### Trade-offs
+
+Using an async database layer also introduces some considerations:
+
+- Async code can be slightly more complex to reason about compared to synchronous code.
+- Debugging async flows may require more familiarity with the event loop.
+- Some third-party libraries still expect synchronous database access.
+
+However, given that the rest of the stack is already asynchronous, using an async database driver keeps the architecture consistent and scalable.
 
 ---
 
